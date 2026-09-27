@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import videoAsset from "@/assets/gm7-promo.mp4.asset.json";
+import videoAsset from "@/assets/gm7-promo-web.mp4.asset.json";
 
 const AUDIO_FLAG = "hasPlayedGm7BannerAudio";
 

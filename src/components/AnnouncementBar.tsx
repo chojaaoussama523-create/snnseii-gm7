@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
+import videoAsset from "@/assets/gm7-promo.mp4.asset.json";
 
-const VIDEO_URL =
-  "https://videotourl.com/videos/1789913477779-a485d7ca-c944-4802-bdc1-1706291b28bd.mp4";
 const AUDIO_FLAG = "hasPlayedGm7BannerAudio";
 
 export function AnnouncementBar() {
@@ -73,7 +72,7 @@ export function AnnouncementBar() {
       <aside className="announcement-video-banner" aria-label="فيديو GM7 الترويجي">
         <video
           ref={videoRef}
-          src={VIDEO_URL}
+          src={videoAsset.url}
           autoPlay
           loop
           playsInline

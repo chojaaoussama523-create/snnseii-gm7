@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import snnseiAsset from "@/assets/snnsei-logo.png.asset.json";
-import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
@@ -18,7 +17,6 @@ export function BrandShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="relative z-40">
-        <AnnouncementBar />
         <header className="site-header">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:flex sm:justify-between sm:px-6 lg:px-8">
             <Link to="/home" className="flex min-w-0 items-center gap-3" aria-label="GM7 الرئيسية">

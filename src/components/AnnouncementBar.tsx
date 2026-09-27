@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import videoAsset from "@/assets/gm7-promo-web.mp4.asset.json";
+import posterAsset from "@/assets/gm7-promo-poster.jpg.asset.json";
 
 const AUDIO_FLAG = "hasPlayedGm7BannerAudio";
 
@@ -73,6 +74,7 @@ export function AnnouncementBar() {
         <video
           ref={videoRef}
           src={videoAsset.url}
+          poster={posterAsset.url}
           autoPlay
           loop
           playsInline

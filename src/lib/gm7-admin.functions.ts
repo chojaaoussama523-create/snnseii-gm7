@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 const accessSchema = z.object({
@@ -30,13 +31,13 @@ export type AdminAccessResult =
 
 export const verifyAdminAccess = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => accessSchema.parse(data))
-  .handler(async ({ data, context }): Promise<AdminAccessResult> => {
+  .handler(async ({ data }): Promise<AdminAccessResult> => {
     const expected = process.env["GM7_ADMIN_ACCESS_CODE"];
     if (!expected) {
       return { ok: false, reason: "unconfigured" };
     }
 
-    const request = (context as { request?: Request }).request;
+    const request: Request | undefined = getRequest();
     const identity =
       request?.headers.get("cf-connecting-ip") ??
       request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??

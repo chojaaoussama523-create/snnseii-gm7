@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import marketBg from "@/assets/gm7-market-4k.jpg.asset.json";
+import marketBg from "@/assets/market-bg.jpg.asset.json";
 import marketLogo from "@/assets/gm7-market-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";

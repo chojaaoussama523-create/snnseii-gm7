@@ -4,6 +4,7 @@ import { Lock, LogOut, ShoppingBag, Swords } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import dashboardBg from "@/assets/dashboard-bg.jpg.asset.json";
 import dashboardLogo from "@/assets/gm7-dashboard-logo.png.asset.json";
+import { TournamentEngine } from "@/components/TournamentEngine";
 import { Button } from "@/components/ui/button";
 import { verifyAdminAccess } from "@/lib/gm7-admin.functions";
 import {
@@ -145,6 +146,9 @@ function Console({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
 
+      {tab === "tournaments" ? (
+        <div className="mt-6"><TournamentEngine /></div>
+      ) : (
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <article key={item.id} className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
@@ -157,6 +161,7 @@ function Console({ onLogout }: { onLogout: () => void }) {
           </article>
         ))}
       </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as Gm7DashboardRouteImport } from './routes/gm7-dashboard'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as SnnseiRouteImport } from './routes/snnsei'
@@ -18,6 +19,11 @@ import { Route as TournamentsRouteImport } from './routes/tournaments'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Gm7DashboardRoute = Gm7DashboardRouteImport.update({
+  id: '/gm7-dashboard',
+  path: '/gm7-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -43,6 +49,7 @@ const TournamentsRoute = TournamentsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/gm7-dashboard': typeof Gm7DashboardRoute
   '/home': typeof HomeRoute
   '/market': typeof MarketRoute
   '/snnsei': typeof SnnseiRoute
@@ -65,14 +74,23 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/home' | '/market' | '/snnsei' | '/tournaments'
+  fullPaths:
+    '/' | '/gm7-dashboard' | '/home' | '/market' | '/snnsei' | '/tournaments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/home' | '/market' | '/snnsei' | '/tournaments'
-  id: '__root__' | '/' | '/home' | '/market' | '/snnsei' | '/tournaments'
+  to: '/' | '/gm7-dashboard' | '/home' | '/market' | '/snnsei' | '/tournaments'
+  id:
+    | '__root__'
+    | '/'
+    | '/gm7-dashboard'
+    | '/home'
+    | '/market'
+    | '/snnsei'
+    | '/tournaments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Gm7DashboardRoute: typeof Gm7DashboardRoute
   HomeRoute: typeof HomeRoute
   MarketRoute: typeof MarketRoute
   SnnseiRoute: typeof SnnseiRoute
@@ -86,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gm7-dashboard': {
+      id: '/gm7-dashboard'
+      path: '/gm7-dashboard'
+      fullPath: '/gm7-dashboard'
+      preLoaderRoute: typeof Gm7DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -121,6 +146,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Gm7DashboardRoute: Gm7DashboardRoute,
   HomeRoute: HomeRoute,
   MarketRoute: MarketRoute,
   SnnseiRoute: SnnseiRoute,

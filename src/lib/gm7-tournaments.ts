@@ -22,7 +22,7 @@ export type Game = {
   category: Category;
   platforms: Platform[];
   status: GameStatus;
-  logoSource?: string;
+  logoSource?: string | undefined;
 };
 
 export const PLATFORMS: Platform[] = ["PS5", "PC", "XBOX", "SWITCH", "MOBILE"];

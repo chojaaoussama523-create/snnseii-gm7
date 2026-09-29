@@ -3,6 +3,8 @@ import tournamentsBg from "@/assets/tournaments-bg.jpg.asset.json";
 import tournamentsLogo from "@/assets/gm7-tournaments-logo.png.asset.json";
 import { BrandPage } from "@/components/BrandPage";
 import { BrandShell } from "@/components/BrandShell";
+import { GameCatalog } from "@/components/GameCatalog";
+import { GAMES } from "@/lib/gm7-tournaments";
 
 export const Route = createFileRoute("/tournaments")({
   head: () => ({
@@ -30,6 +32,9 @@ function TournamentsPage() {
         background={tournamentsBg.url}
         accent="tournaments"
       />
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
+        <GameCatalog games={GAMES} title="ألعاب بطولات GM7 — 5 أجهزة" />
+      </div>
     </BrandShell>
   );
 }

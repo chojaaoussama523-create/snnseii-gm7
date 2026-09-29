@@ -1,10 +1,29 @@
+import catalog from "@/data/gm7-games.json";
+
 export type Platform = "PS5" | "PC" | "XBOX" | "SWITCH" | "MOBILE";
 export type GameStatus = "live" | "open" | "ready";
 export type TeamMode = 1 | 2 | 3 | 4 | 5;
 export type Format = "knockout" | "groups";
 export type BracketSize = 2 | 4 | 8 | 16 | 32;
+export type Category =
+  | "fighting"
+  | "shooter"
+  | "battle-royale"
+  | "sports"
+  | "strategy"
+  | "racing"
+  | "cards"
+  | "other";
 
-export type Game = { id: string; name: string; platforms: Platform[]; status: GameStatus };
+export type Game = {
+  id: string;
+  name: string;
+  genre: string;
+  category: Category;
+  platforms: Platform[];
+  status: GameStatus;
+  logoSource?: string;
+};
 
 export const PLATFORMS: Platform[] = ["PS5", "PC", "XBOX", "SWITCH", "MOBILE"];
 export const TEAM_MODES: TeamMode[] = [1, 2, 3, 4, 5];
@@ -16,20 +35,46 @@ export const GAME_STATUS_LABELS: Record<GameStatus, string> = {
   ready: "جاهزة للتنظيم",
 };
 
-export const GAMES: Game[] = [
-  { id: "fc26", name: "EA SPORTS FC 26", platforms: ["PS5", "XBOX", "PC"], status: "live" },
-  { id: "fc25", name: "EA SPORTS FC 25", platforms: ["PS5", "XBOX", "PC"], status: "ready" },
-  { id: "tekken8", name: "TEKKEN 8", platforms: ["PS5", "XBOX", "PC"], status: "open" },
-  { id: "sf6", name: "STREET FIGHTER 6", platforms: ["PS5", "XBOX", "PC"], status: "ready" },
-  { id: "mk1", name: "MORTAL KOMBAT 1", platforms: ["PS5", "XBOX", "PC", "SWITCH"], status: "ready" },
-  { id: "valorant", name: "VALORANT", platforms: ["PC"], status: "open" },
-  { id: "cs2", name: "COUNTER-STRIKE 2", platforms: ["PC"], status: "ready" },
-  { id: "cod", name: "CALL OF DUTY", platforms: ["PS5", "XBOX", "PC"], status: "ready" },
-  { id: "rl", name: "ROCKET LEAGUE", platforms: ["PS5", "XBOX", "PC", "SWITCH"], status: "open" },
-  { id: "lol", name: "LEAGUE OF LEGENDS", platforms: ["PC"], status: "ready" },
-  { id: "pubgm", name: "PUBG MOBILE", platforms: ["MOBILE"], status: "live" },
-  { id: "ff", name: "FREE FIRE", platforms: ["MOBILE"], status: "open" },
-  { id: "smash", name: "SUPER SMASH BROS. ULTIMATE", platforms: ["SWITCH"], status: "ready" },
-];
+export const CATEGORY_LABELS: Record<Category, string> = {
+  fighting: "قتال",
+  shooter: "تصويب",
+  "battle-royale": "باتل رويال",
+  sports: "رياضة",
+  strategy: "استراتيجية وموبا",
+  racing: "سباقات",
+  cards: "بطاقات ولوحية",
+  other: "أخرى",
+};
+
+export const CATEGORIES = Object.keys(CATEGORY_LABELS) as Category[];
+
+export function categoryOf(genre: string): Category {
+  const g = genre.toLowerCase();
+  if (g.includes("battle royale")) return "battle-royale";
+  if (g.includes("fighting") || g.includes("brawler") || g.includes("combat") || g.includes("wrestling"))
+    return "fighting";
+  if (g.includes("fps") || g.includes("shooter") || g.includes("tps")) return "shooter";
+  if (g.includes("racing")) return "racing";
+  if (g.includes("moba") || g.includes("rts") || g.includes("strategy") || g.includes("auto battler") || g.includes("chess"))
+    return "strategy";
+  if (g.includes("card") || g.includes("board")) return "cards";
+  if (
+    ["football", "sports", "basketball", "cricket", "baseball", "tennis", "golf", "hockey"].some((k) => g.includes(k))
+  )
+    return "sports";
+  return "other";
+}
+
+type RawGame = { id: string; name: string; genre: string; platforms: string[]; status: string; logoSource?: string };
+
+export const GAMES: Game[] = (catalog as RawGame[]).map((g) => ({
+  id: g.id,
+  name: g.name,
+  genre: g.genre,
+  category: categoryOf(g.genre),
+  platforms: g.platforms.filter((p): p is Platform => (PLATFORMS as string[]).includes(p)),
+  status: g.status === "open" ? "open" : "ready",
+  logoSource: g.logoSource,
+}));
 
 export const PRIZE_SPLIT = [0.6, 0.25, 0.15] as const;

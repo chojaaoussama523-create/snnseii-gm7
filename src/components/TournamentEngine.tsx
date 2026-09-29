@@ -1,10 +1,10 @@
 import { Plus, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
+import { GameCatalog, GameLogo } from "@/components/GameCatalog";
 import { Button } from "@/components/ui/button";
 import {
   BRACKET_SIZES,
   GAMES,
-  GAME_STATUS_LABELS,
   PLATFORMS,
   PRIZE_SPLIT,
   TEAM_MODES,
@@ -26,8 +26,7 @@ function roundName(matches: number): string {
 
 export function TournamentEngine() {
   const [games, setGames] = useState<Game[]>(GAMES);
-  const [platform, setPlatform] = useState<Platform | "ALL">("ALL");
-  const [query, setQuery] = useState("");
+  const [platform, setPlatform] = useState<Platform>("PC");
   const [newGame, setNewGame] = useState("");
   const [game, setGame] = useState<Game>(GAMES[0]!);
   const [mode, setMode] = useState<TeamMode>(1);
@@ -37,10 +36,6 @@ export function TournamentEngine() {
   const [teams, setTeams] = useState<string[]>(() => Array.from({ length: 8 }, (_, i) => `فريق ${i + 1}`));
   const [winners, setWinners] = useState<Slot[][]>([]);
   const [third, setThird] = useState<Slot>(null);
-
-  const filtered = games.filter(
-    (g) => (platform === "ALL" || g.platforms.includes(platform)) && g.name.toLowerCase().includes(query.toLowerCase()),
-  );
 
   function resize(next: BracketSize) {
     setSize(next);
@@ -86,55 +81,35 @@ export function TournamentEngine() {
 
   return (
     <div className="space-y-8">
+      <GameCatalog games={games} selectedId={game.id} onSelect={setGame} />
       <section className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
-        <h2 className="font-display text-lg font-black text-foreground">مكتبة ألعاب البطولات</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(["ALL", ...PLATFORMS] as const).map((p) => (
-            <Button key={p} size="sm" variant={platform === p ? "default" : "outline"} onClick={() => setPlatform(p)}>
-              {p === "ALL" ? "الكل" : p}
-            </Button>
-          ))}
-        </div>
+        <h2 className="font-display text-lg font-black text-foreground">إضافة لعبة جديدة</h2>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث عن لعبة" className="h-10 flex-1 rounded-lg border border-input bg-background px-3 text-foreground" />
           <input value={newGame} onChange={(e) => setNewGame(e.target.value)} placeholder="اسم لعبة جديدة" className="h-10 flex-1 rounded-lg border border-input bg-background px-3 text-foreground" />
+          <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="h-10 rounded-lg border border-input bg-background px-3 text-foreground">
+            {PLATFORMS.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
           <Button
             variant="outline"
             disabled={!newGame.trim()}
             onClick={() => {
-              const platforms: Platform[] = platform === "ALL" ? ["PC"] : [platform];
-              setGames((g) => [...g, { id: `g-${g.length}`, name: newGame.trim().toUpperCase(), platforms, status: "ready" }]);
+              const name = newGame.trim();
+              setGames((g) => [...g, { id: `custom-${g.length}`, name, genre: "Custom", category: "other", platforms: [platform], status: "ready" }]);
               setNewGame("");
             }}
           >
             <Plus aria-hidden="true" /> إضافة
           </Button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">{games.length} لعبة · سعة 1000+ لكل جهاز</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => setGame(g)}
-              className={`rounded-lg border p-3 text-right transition ${game.id === g.id ? "border-primary bg-primary/10" : "border-border bg-background/60"}`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/15 font-display text-sm font-black text-primary">
-                  {g.name.slice(0, 2)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-foreground">{g.name}</p>
-                  <p className="text-xs text-muted-foreground">{g.platforms.join(" · ")} — {GAME_STATUS_LABELS[g.status]}</p>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
       </section>
 
       <section className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
-        <h2 className="font-display text-lg font-black text-foreground">إعداد البطولة — {game.name}</h2>
+        <div className="flex items-center gap-3">
+          <GameLogo name={game.name} />
+          <h2 className="font-display text-lg font-black text-foreground">إعداد البطولة — {game.name}</h2>
+        </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="نمط المنافسة">
             <div className="flex flex-wrap gap-1">

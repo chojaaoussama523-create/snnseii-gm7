@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Lock, LogOut, ShoppingBag, Swords } from "lucide-react";
+import { Lock, LogOut, ShoppingBag, Swords, Users } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import dashboardBg from "@/assets/dashboard-bg.jpg.asset.json";
 import dashboardLogo from "@/assets/gm7-dashboard-logo.png.asset.json";
+import { RegistrationsAdmin } from "@/components/RegistrationsAdmin";
 import { TournamentEngine } from "@/components/TournamentEngine";
 import { Button } from "@/components/ui/button";
 import { verifyAdminAccess } from "@/lib/gm7-admin.functions";
@@ -119,7 +120,7 @@ function Gate({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function Console({ onLogout }: { onLogout: () => void }) {
-  const [tab, setTab] = useState<"market" | "tournaments">("tournaments");
+  const [tab, setTab] = useState<"market" | "tournaments" | "registrations">("tournaments");
   const items: (MarketItem | TournamentItem)[] = tab === "market" ? MARKET_ITEMS : TOURNAMENT_ITEMS;
 
   return (
@@ -141,12 +142,17 @@ function Console({ onLogout }: { onLogout: () => void }) {
         <Button variant={tab === "tournaments" ? "default" : "outline"} onClick={() => setTab("tournaments")} role="tab" aria-selected={tab === "tournaments"}>
           <Swords aria-hidden="true" /> البطولات
         </Button>
+        <Button variant={tab === "registrations" ? "default" : "outline"} onClick={() => setTab("registrations")} role="tab" aria-selected={tab === "registrations"}>
+          <Users aria-hidden="true" /> التسجيلات
+        </Button>
         <Button variant={tab === "market" ? "default" : "outline"} onClick={() => setTab("market")} role="tab" aria-selected={tab === "market"}>
           <ShoppingBag aria-hidden="true" /> المتجر
         </Button>
       </div>
 
-      {tab === "tournaments" ? (
+      {tab === "registrations" ? (
+        <div className="mt-6"><RegistrationsAdmin /></div>
+      ) : tab === "tournaments" ? (
         <div className="mt-6"><TournamentEngine /></div>
       ) : (
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

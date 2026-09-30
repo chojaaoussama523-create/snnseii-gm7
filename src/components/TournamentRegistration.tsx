@@ -1,26 +1,12 @@
 import { CheckCircle2, Radio } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { checkInRegistration, getMyRegistrations, submitRegistration, type RegRow } from "@/lib/gm7-registrations.functions";
 import { GAMES, PLATFORMS, TEAM_MODES, type Platform, type TeamMode } from "@/lib/gm7-tournaments";
 
-type Registration = {
-  id: string;
-  team: string;
-  captain: string;
-  whatsapp: string;
-  discord: string;
-  city: string;
-  platform: Platform;
-  gameId: string;
-  platformId: string;
-  mode: TeamMode;
-  roster: string[];
-  sub: string;
-  status: "new" | "checked-in";
-};
-
-const KEY = "gm7-registrations";
+const KEY = "gm7-my-registration-codes";
 
 const schema = z.object({
   team: z.string().trim().min(2, "اسم الفريق/اللاعب قصير").max(40),
@@ -41,7 +27,10 @@ const DEMO_MATCHES = [
 const input = "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground";
 
 export function TournamentRegistration() {
-  const [list, setList] = useState<Registration[]>([]);
+  const submitFn = useServerFn(submitRegistration);
+  const mineFn = useServerFn(getMyRegistrations);
+  const checkInFn = useServerFn(checkInRegistration);
+  const [list, setList] = useState<RegRow[]>([]);
   const [mode, setMode] = useState<TeamMode>(1);
   const [platform, setPlatform] = useState<Platform>("PS5");
   const [gameId, setGameId] = useState("");
@@ -50,26 +39,26 @@ export function TournamentRegistration() {
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  function codes(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) ?? "[]") as string[];
+    } catch {
+      return [];
+    }
+  }
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setList(JSON.parse(raw) as Registration[]);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  function save(next: Registration[]) {
-    setList(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  }
+    const c = codes();
+    if (c.length) mineFn({ data: { codes: c } }).then(setList).catch(() => undefined);
+  }, [mineFn]);
 
   const platformGames = GAMES.filter((g) => g.platforms.includes(platform));
   const extra = mode - 1;
   const rosterSlots = Array.from({ length: extra }, (_, i) => roster[i] ?? "");
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = schema.safeParse({ ...form, roster: rosterSlots });
     const errs = parsed.success ? [] : parsed.error.issues.map((i) => i.message);
@@ -77,10 +66,19 @@ export function TournamentRegistration() {
     if (!agree) errs.push("يجب الموافقة على إقرار النزاهة");
     setErrors([...new Set(errs)]);
     if (errs.length || !parsed.success) return;
-    save([
-      ...list,
-      { id: `REG-${Date.now().toString(36).toUpperCase()}`, ...parsed.data, sub: form.sub.trim(), platform, gameId, mode, status: "new" },
-    ]);
+    setBusy(true);
+    try {
+      const row = await submitFn({
+        data: { ...parsed.data, sub: form.sub.trim(), platform, gameId, mode },
+      });
+      localStorage.setItem(KEY, JSON.stringify([...codes(), row.code]));
+      setList((l) => [...l, row]);
+    } catch {
+      setErrors(["تعذر إرسال التسجيل، حاول مجدداً."]);
+      return;
+    } finally {
+      setBusy(false);
+    }
     setForm({ team: "", captain: "", whatsapp: "", discord: "", city: "", platformId: "", sub: "" });
     setRoster([]);
     setAgree(false);
@@ -116,7 +114,7 @@ export function TournamentRegistration() {
 
       <section className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
         <h2 className="font-display text-lg font-black text-foreground">التسجيل في البطولة</h2>
-        <form onSubmit={submit} className="mt-4 space-y-4" noValidate>
+        <form onSubmit={(e) => void submit(e)} className="mt-4 space-y-4" noValidate>
           <div className="flex flex-wrap gap-2">
             {TEAM_MODES.map((m) => (
               <Button key={m} type="button" size="sm" variant={mode === m ? "default" : "outline"} onClick={() => setMode(m)}>
@@ -156,7 +154,7 @@ export function TournamentRegistration() {
             <ul className="space-y-1 text-sm text-destructive">{errors.map((e) => <li key={e}>• {e}</li>)}</ul>
           ) : null}
           {done ? <p className="text-sm text-primary">تم التسجيل بنجاح ✅ — لا تنس تأكيد الحضور أدناه.</p> : null}
-          <Button type="submit" size="lg">إرسال التسجيل</Button>
+          <Button type="submit" size="lg" disabled={busy}>{busy ? "جارٍ الإرسال..." : "إرسال التسجيل"}</Button>
         </form>
       </section>
 
@@ -165,15 +163,19 @@ export function TournamentRegistration() {
           <h2 className="font-display text-lg font-black text-foreground">تسجيلاتي وتأكيد الحضور</h2>
           <ul className="mt-4 space-y-2">
             {list.map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background/60 p-3 text-sm">
+              <li key={r.code} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background/60 p-3 text-sm">
                 <span className="text-foreground">
                   <b>{r.team}</b> · {GAMES.find((g) => g.id === r.gameId)?.name} · {r.platform} · {r.mode}v{r.mode}
-                  <span className="mr-2 text-xs text-muted-foreground">{r.id}</span>
+                  <span className="mr-2 text-xs text-muted-foreground">{r.code}</span>
                 </span>
-                {r.status === "checked-in" ? (
+                {r.status === "rejected" ? (
+                  <span className="text-destructive">مرفوض</span>
+                ) : r.status === "waitlist" ? (
+                  <span className="text-muted-foreground">قائمة انتظار</span>
+                ) : r.status === "checked-in" ? (
                   <span className="flex items-center gap-1 text-primary"><CheckCircle2 className="h-4 w-4" aria-hidden="true" /> تم تأكيد الحضور</span>
                 ) : (
-                  <Button size="sm" onClick={() => save(list.map((x) => (x.id === r.id ? { ...x, status: "checked-in" } : x)))}>Check-In</Button>
+                  <Button size="sm" onClick={() => { setList((l) => l.map((x) => (x.code === r.code ? { ...x, status: "checked-in" } : x))); void checkInFn({ data: { code: r.code } }); }}>Check-In</Button>
                 )}
               </li>
             ))}

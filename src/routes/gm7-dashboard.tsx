@@ -34,10 +34,11 @@ export const Route = createFileRoute("/gm7-dashboard")({
 const SESSION_KEY = "gm7-admin-session";
 
 function DashboardPage() {
-  const [authed, setAuthed] = useState(false);
+  const [access, setAccess] = useState<string | null>(null);
 
   useEffect(() => {
-    setAuthed(sessionStorage.getItem(SESSION_KEY) === "1");
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    setAccess(saved && saved !== "1" ? saved : null);
   }, []);
 
   return (
@@ -45,18 +46,19 @@ function DashboardPage() {
       <img src={dashboardBg.url} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-30" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" aria-hidden="true" />
       <div className="relative">
-        {authed ? (
+        {access ? (
           <Console
+            access={access}
             onLogout={() => {
               sessionStorage.removeItem(SESSION_KEY);
-              setAuthed(false);
+              setAccess(null);
             }}
           />
         ) : (
           <Gate
-            onSuccess={() => {
-              sessionStorage.setItem(SESSION_KEY, "1");
-              setAuthed(true);
+            onSuccess={(code) => {
+              sessionStorage.setItem(SESSION_KEY, code);
+              setAccess(code);
             }}
           />
         )}
@@ -65,7 +67,7 @@ function DashboardPage() {
   );
 }
 
-function Gate({ onSuccess }: { onSuccess: () => void }) {
+function Gate({ onSuccess }: { onSuccess: (code: string) => void }) {
   const verify = useServerFn(verifyAdminAccess);
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ function Gate({ onSuccess }: { onSuccess: () => void }) {
     try {
       const result = await verify({ data: { code } });
       if (result.ok) {
-        onSuccess();
+        onSuccess(code.trim());
       } else if (result.reason === "locked") {
         setError(`محاولات كثيرة. أعد المحاولة بعد ${Math.ceil((result.retryAfterSeconds ?? 600) / 60)} دقيقة.`);
       } else if (result.reason === "unconfigured") {
@@ -119,7 +121,7 @@ function Gate({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-function Console({ onLogout }: { onLogout: () => void }) {
+function Console({ access, onLogout }: { access: string; onLogout: () => void }) {
   const [tab, setTab] = useState<"market" | "tournaments" | "registrations">("tournaments");
   const items: (MarketItem | TournamentItem)[] = tab === "market" ? MARKET_ITEMS : TOURNAMENT_ITEMS;
 
@@ -151,7 +153,7 @@ function Console({ onLogout }: { onLogout: () => void }) {
       </div>
 
       {tab === "registrations" ? (
-        <div className="mt-6"><RegistrationsAdmin /></div>
+        <div className="mt-6"><RegistrationsAdmin access={access} /></div>
       ) : tab === "tournaments" ? (
         <div className="mt-6"><TournamentEngine /></div>
       ) : (

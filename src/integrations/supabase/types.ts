@@ -14,6 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      gm7_active_tournaments: {
+        Row: {
+          banner_url: string
+          bracket_state: Json
+          category: string
+          created_at: string
+          description: string
+          format: string
+          game_id: string
+          game_logo_url: string
+          game_name: string
+          id: string
+          max_slots: number
+          name: string
+          platform: string
+          prize_pool: number
+          starts_at: string | null
+          status: string
+          team_mode: number
+          thumb_url: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string
+          bracket_state?: Json
+          category?: string
+          created_at?: string
+          description?: string
+          format?: string
+          game_id?: string
+          game_logo_url?: string
+          game_name?: string
+          id?: string
+          max_slots?: number
+          name: string
+          platform?: string
+          prize_pool?: number
+          starts_at?: string | null
+          status?: string
+          team_mode?: number
+          thumb_url?: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string
+          bracket_state?: Json
+          category?: string
+          created_at?: string
+          description?: string
+          format?: string
+          game_id?: string
+          game_logo_url?: string
+          game_name?: string
+          id?: string
+          max_slots?: number
+          name?: string
+          platform?: string
+          prize_pool?: number
+          starts_at?: string | null
+          status?: string
+          team_mode?: number
+          thumb_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gm7_media: {
+        Row: {
+          created_at: string
+          embed_url: string
+          id: string
+          is_live: boolean
+          kind: string
+          platform: string
+          sort: number
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          embed_url?: string
+          id?: string
+          is_live?: boolean
+          kind?: string
+          platform?: string
+          sort?: number
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          embed_url?: string
+          id?: string
+          is_live?: boolean
+          kind?: string
+          platform?: string
+          sort?: number
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      gm7_orders: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          customer_name: string
+          id: string
+          items: Json
+          notes: string
+          order_code: string
+          phone: string
+          shipping: number
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          customer_name: string
+          id?: string
+          items?: Json
+          notes?: string
+          order_code: string
+          phone: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          customer_name?: string
+          id?: string
+          items?: Json
+          notes?: string
+          order_code?: string
+          phone?: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tournament_registrations: {
         Row: {
           captain: string
@@ -30,6 +183,7 @@ export type Database = {
           status: string
           sub: string
           team: string
+          tournament_id: string | null
           whatsapp: string
         }
         Insert: {
@@ -47,6 +201,7 @@ export type Database = {
           status?: string
           sub?: string
           team: string
+          tournament_id?: string | null
           whatsapp: string
         }
         Update: {
@@ -64,9 +219,18 @@ export type Database = {
           status?: string
           sub?: string
           team?: string
+          tournament_id?: string | null
           whatsapp?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tournament_registrations_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "gm7_active_tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

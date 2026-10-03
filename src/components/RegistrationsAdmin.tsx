@@ -1,8 +1,16 @@
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Clock, Copy, Download, RefreshCw, X } from "lucide-react";
+import { Check, Clock, Copy, Download, RefreshCw, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { adminListRegistrations, adminSetStatus, type RegRow, type RegStatus } from "@/lib/gm7-registrations.functions";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  adminDeleteRegistration,
+  adminListRegistrations,
+  adminSetStatus,
+  REALTIME_CHANNEL,
+  type RegRow,
+  type RegStatus,
+} from "@/lib/gm7-registrations.functions";
 import { GAMES } from "@/lib/gm7-tournaments";
 
 const LABELS: Record<RegStatus, string> = {
@@ -18,12 +26,13 @@ const gameName = (id: string) => GAMES.find((g) => g.id === id)?.name ?? id;
 export function RegistrationsAdmin({ access }: { access: string }) {
   const list = useServerFn(adminListRegistrations);
   const setStatusFn = useServerFn(adminSetStatus);
+  const deleteFn = useServerFn(adminDeleteRegistration);
   const [rows, setRows] = useState<RegRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       setRows(await list({ data: { access } }));
@@ -38,6 +47,27 @@ export function RegistrationsAdmin({ access }: { access: string }) {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel(REALTIME_CHANNEL)
+      .on("broadcast", { event: "changed" }, () => void load(true))
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [load]);
+
+  async function remove(r: RegRow) {
+    if (!window.confirm(`حذف / إقصاء "${r.team}"؟`)) return;
+    setRows((list) => list.filter((x) => x.code !== r.code));
+    try {
+      await deleteFn({ data: { access, code: r.code } });
+    } catch {
+      setError("تعذر حذف التسجيل.");
+      void load();
+    }
+  }
+
   async function setStatus(code: string, status: RegStatus) {
     setRows((r) => r.map((x) => (x.code === code ? { ...x, status } : x)));
     try {
@@ -49,9 +79,9 @@ export function RegistrationsAdmin({ access }: { access: string }) {
   }
 
   function exportCsv() {
-    const out = [["ID", "Team", "Captain", "WhatsApp", "City", "Platform", "Game", "Mode", "Status"]];
+    const out = [["ID", "Team", "Captain", "Game ID", "WhatsApp", "City", "Platform", "Game", "Mode", "Roster", "Status"]];
     rows.forEach((r) =>
-      out.push([r.code, r.team, r.captain, r.whatsapp, r.city, r.platform, gameName(r.gameId), `${r.mode}v${r.mode}`, LABELS[r.status]]),
+      out.push([r.code, r.team, r.captain, r.platformId, r.whatsapp, r.city, r.platform, gameName(r.gameId), `${r.mode}v${r.mode}`, r.roster.join(" | "), LABELS[r.status]]),
     );
     const csv = "\uFEFF" + out.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const a = document.createElement("a");
@@ -80,7 +110,8 @@ export function RegistrationsAdmin({ access }: { access: string }) {
         <div key={r.code} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card/80 p-4 text-sm">
           <div className="min-w-0">
             <p className="font-bold text-foreground">{r.team} <span className="text-xs text-muted-foreground">· {r.captain} · {r.city}</span></p>
-            <p className="text-xs text-muted-foreground">{gameName(r.gameId)} · {r.platform} · {r.mode}v{r.mode} · {r.platformId} · {r.code}</p>
+            <p className="text-xs text-muted-foreground">Game ID: <span dir="ltr">{r.platformId}</span> · WhatsApp: <span dir="ltr">{r.whatsapp}</span></p>
+            <p className="text-xs text-muted-foreground">{gameName(r.gameId)} · {r.platform} · {r.mode}v{r.mode} · {r.code}</p>
             {r.roster.length ? <p className="text-xs text-muted-foreground">التشكيلة: {r.roster.join("، ")}{r.sub ? ` · احتياطي: ${r.sub}` : ""}</p> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -89,6 +120,7 @@ export function RegistrationsAdmin({ access }: { access: string }) {
             <Button size="sm" variant="outline" onClick={() => void setStatus(r.code, "waitlist")} aria-label="قائمة انتظار"><Clock aria-hidden="true" /></Button>
             <Button size="sm" variant="destructive" onClick={() => void setStatus(r.code, "rejected")} aria-label="رفض"><X aria-hidden="true" /></Button>
             <Button size="sm" variant="ghost" onClick={() => void navigator.clipboard.writeText(r.whatsapp)} aria-label="نسخ واتساب"><Copy aria-hidden="true" /></Button>
+            <Button size="sm" variant="destructive" onClick={() => void remove(r)} aria-label="حذف / إقصاء"><Trash2 aria-hidden="true" /> حذف / إقصاء</Button>
           </div>
         </div>
       ))}

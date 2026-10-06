@@ -1,12 +1,28 @@
-import { CheckCircle2, Radio } from "lucide-react";
+import { CheckCircle2, Radio, TriangleAlert } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { checkInRegistration, getMyRegistrations, submitRegistration, type RegRow } from "@/lib/gm7-registrations.functions";
+import { checkInRegistration, DUPLICATE_ERROR, getMyRegistrations, submitRegistration, type RegRow } from "@/lib/gm7-registrations.functions";
 import { GAMES, PLATFORMS, TEAM_MODES, type Platform, type TeamMode } from "@/lib/gm7-tournaments";
 
 const KEY = "gm7-my-registration-codes";
+const DEVICE_KEY = "gm7-device-id";
+const GATE_SECONDS = 3;
+
+function deviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch {
+    return "";
+  }
+}
 
 const schema = z.object({
   team: z.string().trim().min(2, "اسم الفريق/اللاعب قصير").max(40),
@@ -40,6 +56,13 @@ export function TournamentRegistration() {
   const [errors, setErrors] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [gate, setGate] = useState(GATE_SECONDS);
+
+  useEffect(() => {
+    if (gate <= 0) return;
+    const t = setTimeout(() => setGate((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [gate]);
 
   function codes(): string[] {
     try {
@@ -60,6 +83,7 @@ export function TournamentRegistration() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (gate > 0) return;
     const parsed = schema.safeParse({ ...form, roster: rosterSlots });
     const errs = parsed.success ? [] : parsed.error.issues.map((i) => i.message);
     if (!gameId) errs.push("اختر اللعبة");
@@ -69,11 +93,16 @@ export function TournamentRegistration() {
     setBusy(true);
     try {
       const row = await submitFn({
-        data: { ...parsed.data, sub: form.sub.trim(), platform, gameId, mode },
+        data: { ...parsed.data, sub: form.sub.trim(), platform, gameId, mode, deviceId: deviceId() },
       });
       localStorage.setItem(KEY, JSON.stringify([...codes(), row.code]));
       setList((l) => [...l, row]);
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message.includes(DUPLICATE_ERROR)) {
+        toast.error("Duplicate registration blocked.");
+        setErrors(["تسجيل مكرر: رقم الواتساب أو معرّف اللعبة أو الجهاز مسجل مسبقاً في هذه اللعبة."]);
+        return;
+      }
       setErrors(["تعذر إرسال التسجيل، حاول مجدداً."]);
       return;
     } finally {
@@ -113,8 +142,13 @@ export function TournamentRegistration() {
       </section>
 
       <section className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur">
+        <div role="alert" className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-foreground">
+          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-destructive" aria-hidden="true" />
+          <p>⚠️ تنبيه: اقرأ القوانين جيداً. أي تسجيل مكرر (نفس الواتساب، معرّف اللعبة أو الجهاز) سيتم حظره تلقائياً، والمعلومات الخاطئة تؤدي للإقصاء.{gate > 0 ? ` (يُفعّل النموذج بعد ${gate} ث)` : ""}</p>
+        </div>
         <h2 className="font-display text-lg font-black text-foreground">التسجيل في البطولة</h2>
-        <form onSubmit={(e) => void submit(e)} className="mt-4 space-y-4" noValidate>
+        <form onSubmit={(e) => void submit(e)} className="mt-4" noValidate>
+          <fieldset disabled={gate > 0} className="space-y-4 disabled:opacity-60">
           <div className="flex flex-wrap gap-2">
             {TEAM_MODES.map((m) => (
               <Button key={m} type="button" size="sm" variant={mode === m ? "default" : "outline"} onClick={() => setMode(m)}>
@@ -154,7 +188,8 @@ export function TournamentRegistration() {
             <ul className="space-y-1 text-sm text-destructive">{errors.map((e) => <li key={e}>• {e}</li>)}</ul>
           ) : null}
           {done ? <p className="text-sm text-primary">تم التسجيل بنجاح ✅ — لا تنس تأكيد الحضور أدناه.</p> : null}
-          <Button type="submit" size="lg" disabled={busy}>{busy ? "جارٍ الإرسال..." : "إرسال التسجيل"}</Button>
+          <Button type="submit" size="lg" disabled={busy || gate > 0}>{gate > 0 ? `انتظر ${gate}...` : busy ? "جارٍ الإرسال..." : "إرسال التسجيل"}</Button>
+          </fieldset>
         </form>
       </section>
 

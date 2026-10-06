@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 export type RegStatus = "new" | "checked-in" | "accepted" | "waitlist" | "rejected";
@@ -24,7 +25,7 @@ const text = (min: number) => z.string().trim().min(min).max(40);
 const submitSchema = z.object({
   team: text(2),
   captain: text(2),
-  whatsapp: z.string().trim().regex(/^\+?[0-9 ]{8,16}$/),
+  whatsapp: z.string().trim().regex(/^\+?[0-9 ]{8,16}$/).transform((v) => v.replace(/\s+/g, "")),
   discord: z.string().trim().max(40),
   city: text(2),
   platform: z.enum(["PS5", "PC", "XBOX", "SWITCH", "MOBILE"]),
@@ -33,7 +34,16 @@ const submitSchema = z.object({
   mode: z.number().int().min(1).max(5),
   roster: z.array(text(2)).max(4),
   sub: z.string().trim().max(40),
+  deviceId: z.string().trim().max(64).default(""),
 });
+
+export const DUPLICATE_ERROR = "DUPLICATE_REGISTRATION";
+export const REALTIME_CHANNEL = "gm7-registrations";
+
+async function notifyChange() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await supabaseAdmin.channel(REALTIME_CHANNEL).httpSend("changed", {}).catch(() => undefined);
+}
 
 function checkAdmin(code: string) {
   const expected = process.env["GM7_ADMIN_ACCESS_CODE"];
@@ -59,17 +69,38 @@ export const submitRegistration = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (data.roster.length !== data.mode - 1) throw new Error("Roster mismatch");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ip = getRequestIP({ xForwardedFor: true })?.split(",")[0]?.trim() ?? "";
+    const checks: [string, string][] = [
+      ["whatsapp", data.whatsapp],
+      ["platform_id", data.platformId],
+      ["ip", ip],
+      ["device_id", data.deviceId],
+    ];
+    const dupes = await Promise.all(
+      checks
+        .filter(([, v]) => v)
+        .map(([col, v]) =>
+          supabaseAdmin
+            .from("tournament_registrations")
+            .select("id", { count: "exact", head: true })
+            .eq("game_id", data.gameId)
+            .eq(col, v),
+        ),
+    );
+    if (dupes.some((r) => r.error)) throw new Error("تعذر حفظ التسجيل");
+    if (dupes.some((r) => (r.count ?? 0) > 0)) throw new Error(DUPLICATE_ERROR);
     const code = `REG-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
     const { data: row, error } = await supabaseAdmin
       .from("tournament_registrations")
       .insert({
         code, team: data.team, captain: data.captain, whatsapp: data.whatsapp, discord: data.discord,
         city: data.city, platform: data.platform, game_id: data.gameId, platform_id: data.platformId,
-        mode: data.mode, roster: data.roster, sub: data.sub,
+        mode: data.mode, roster: data.roster, sub: data.sub, ip, device_id: data.deviceId,
       })
       .select("*")
       .single();
     if (error || !row) throw new Error("تعذر حفظ التسجيل");
+    await notifyChange();
     return toDto(row as DbRow);
   });
 
@@ -91,6 +122,7 @@ export const checkInRegistration = createServerFn({ method: "POST" })
       .update({ status: "checked-in" })
       .eq("code", data.code)
       .in("status", ["new", "accepted"]);
+    await notifyChange();
     return { ok: true };
   });
 
@@ -119,5 +151,17 @@ export const adminSetStatus = createServerFn({ method: "POST" })
     checkAdmin(data.access);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("tournament_registrations").update({ status: data.status }).eq("code", data.code);
+    await notifyChange();
+    return { ok: true };
+  });
+
+export const adminDeleteRegistration = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ access: z.string().max(64), code: z.string().max(20) }).parse(d))
+  .handler(async ({ data }) => {
+    checkAdmin(data.access);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("tournament_registrations").delete().eq("code", data.code);
+    if (error) throw new Error("تعذر حذف التسجيل");
+    await notifyChange();
     return { ok: true };
   });

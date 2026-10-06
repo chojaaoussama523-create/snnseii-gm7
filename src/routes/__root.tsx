@@ -86,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "المنصة الرسمية لمجتمع GM7 SNNSEI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "tiktok-developers-site-verification", content: "CBKEQorgliLQKf92V0VmHqJtYr7oCc9Y" },
     ],
     links: [
       {

@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "المنصة الرسمية لمجتمع GM7 SNNSEI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "tiktok-developers-site-verification", content: "CBKEQorgliLQKf92V0VmHqJtYr7oCc9Y" },
+      { name: "tiktok-developers-site-verification", content: "YF0FXuSjauESF21aYV1Q4va0hUGyBlE4" },
     ],
     links: [
       {
@@ -129,7 +129,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {isSplash ? null : <AnnouncementBar />}
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageSquare, Video, Scissors, Radio, ExternalLink, Play } from "lucide-react";
 
 interface Clip {
@@ -21,6 +21,15 @@ interface VOD {
 
 export function KickPlayerCard() {
   const [activeTab, setActiveTab] = useState<"CHAT" | "VODS" | "CLIPS">("CHAT");
+  const playerRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const onBlur = () => {
+      if (document.activeElement === playerRef.current) window.dispatchEvent(new Event("gm7-media-play"));
+    };
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, []);
 
   const channel = "snnsei";
   const channelName = "SNNSEI";
@@ -106,10 +115,11 @@ export function KickPlayerCard() {
           {/* مشغل البث الفعلي */}
           <div className="relative aspect-video w-full bg-black">
             <iframe
-              src={`https://player.kick.com/${channel}`}
+              ref={playerRef}
+              src={`https://player.kick.com/${channel}?autoplay=true&muted=true`}
               title="SNNSEI Kick Live Stream"
               className="absolute inset-0 h-full w-full border-0"
-              allow="autoplay; fullscreen"
+              allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             />
           </div>
@@ -125,9 +135,19 @@ export function KickPlayerCard() {
                 <p className="text-[11px] text-[#53FC18]">@{channel}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 rounded-lg bg-red-600/20 border border-red-500/30 px-2.5 py-1 text-[11px] font-black text-red-400">
-              <Radio className="size-3 animate-pulse" />
-              <span>LIVE</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 rounded-lg bg-red-600/20 border border-red-500/30 px-2.5 py-1 text-[11px] font-black text-red-400">
+                <Radio className="size-3 animate-pulse" />
+                <span>LIVE</span>
+              </div>
+              <a
+                href={`https://kick.com/${channel}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-[#53FC18] px-3 py-1.5 text-[11px] font-black text-black shadow-[0_0_12px_rgba(83,252,24,0.4)] transition hover:scale-105"
+              >
+                Follow on Kick
+              </a>
             </div>
           </div>
         </div>
@@ -181,7 +201,7 @@ export function KickPlayerCard() {
           {activeTab === "CHAT" && (
             <div className="flex-1 relative bg-black flex flex-col overflow-hidden">
               <iframe
-                src={`https://kick.com/popout/${channel}/chat`}
+                src={`https://kick.com/${channel}/chatroom`}
                 title="SNNSEI Kick Chat"
                 className="w-full flex-1 border-0"
               />

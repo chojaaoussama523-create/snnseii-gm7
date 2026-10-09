@@ -139,7 +139,7 @@ function YouTubeTab() {
 function KickTab() {
   return (
     <div>
-      <Head title="Kick" href="https://kick.com/snnseii" text="تابع بث SNNSEI المباشر وسجل المقاطع والتفاعل المباشر." />
+      <Head title="Kick" href="https://kick.com/snnsei" text="تابع بث SNNSEI المباشر وسجل المقاطع والتفاعل المباشر." />
       <KickPlayerCard />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, MessageSquare, Video, Scissors, Radio, ExternalLink } from "lucide-react";
+import { MessageSquare, Video, Scissors, Radio, ExternalLink, Play } from "lucide-react";
 
 interface Clip {
   id: string;
@@ -7,6 +7,7 @@ interface Clip {
   views: number;
   duration: string;
   thumbnail: string;
+  url: string;
 }
 
 interface VOD {
@@ -15,236 +16,221 @@ interface VOD {
   date: string;
   duration: string;
   thumbnail: string;
+  url: string;
 }
 
 export function KickPlayerCard() {
   const [activeTab, setActiveTab] = useState<"CHAT" | "VODS" | "CLIPS">("CHAT");
 
-  // بيانات افتراضية للعرض
-  const username = "snnseii";
-  const channelName = "SNNSEI GAMING";
-  const isLive = true;
-  const viewerCount = 1420;
+  const channel = "snnsei";
+  const channelName = "SNNSEI";
 
   const mockClips: Clip[] = [
     {
-      id: "1",
-      title: "لقطة قضاء على التيم بالكامل 🔥",
-      views: 12500,
-      duration: "0:30",
+      id: "c1",
+      title: "لقطة كلاش اسطوري في آخر الزون 🔥",
+      views: 14200,
+      duration: "0:45",
       thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600",
+      url: `https://kick.com/${channel}/clips`,
     },
     {
-      id: "2",
-      title: "ردة فعل مجنونة في آخر ثانية 😱",
-      views: 8900,
-      duration: "0:45",
+      id: "c2",
+      title: "ردة فعل مجنونة وضحك هستيري 🤣",
+      views: 9800,
+      duration: "0:30",
       thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600",
+      url: `https://kick.com/${channel}/clips`,
+    },
+    {
+      id: "c3",
+      title: "أفضل وان تاب مع التيم كامل 🎯",
+      views: 8300,
+      duration: "0:50",
+      thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600",
+      url: `https://kick.com/${channel}/clips`,
     },
   ];
 
   const mockVODs: VOD[] = [
     {
-      id: "101",
-      title: "بث كامل: بطولات نهاية الأسبوع | GM7",
-      date: "أمس",
-      duration: "4h 12m",
+      id: "v1",
+      title: "بث كامل: سهرات سكريمات وبطولات GM7 الكبرى",
+      date: "منذ يومين",
+      duration: "4h 15m",
       thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600",
+      url: `https://kick.com/${channel}/videos`,
     },
     {
-      id: "102",
-      title: "تختيم الأحداث الجديدة وتجربة التحديث",
-      date: "قبل 3 أيام",
-      duration: "3h 45m",
+      id: "v2",
+      title: "تختيم لعبة وتحديات مع المتابعين في الديسكورد",
+      date: "منذ 4 أيام",
+      duration: "3h 50m",
+      thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600",
+      url: `https://kick.com/${channel}/videos`,
+    },
+    {
+      id: "v3",
+      title: "سهرة رومات ورانكد مفتوح مع الدردشة",
+      date: "الأسبوع الماضي",
+      duration: "5h 10m",
       thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600",
+      url: `https://kick.com/${channel}/videos`,
     },
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 space-y-6">
-      {/* Container الرئيسي: الشاشة الكبيرة والإطار */}
-      <div className="relative rounded-3xl overflow-hidden bg-zinc-950 border-2 border-zinc-800 shadow-[0_0_50px_rgba(83,252,24,0.1)] flex flex-col lg:flex-row">
+    <div className="w-full max-w-7xl mx-auto space-y-4">
+      {/* إطار البث والشات المتجاوب */}
+      <div className="rounded-2xl lg:rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl flex flex-col lg:flex-row">
         
-        {/* قسم الشاشة الرئيسية للبث (Left Main Player) */}
-        <div className="relative flex-1 aspect-video bg-black flex flex-col justify-between group">
-          <img
-            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200"
-            alt="Kick Live Stream"
-            className="absolute inset-0 w-full h-full object-cover opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
-
-          {/* الجزء العلوي: شارات البث والمشاهدين */}
-          <div className="relative z-10 p-4 flex justify-between items-center">
-            {isLive ? (
-              <div className="bg-red-600/90 text-white text-xs font-black px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur-md animate-pulse">
-                <Radio className="w-4 h-4" />
-                <span>مباشر الآن</span>
-              </div>
-            ) : (
-              <div className="bg-zinc-800/80 text-zinc-400 text-xs font-bold px-3 py-1.5 rounded-lg">
-                غير مباشر
-              </div>
-            )}
-
-            <div className="bg-black/70 text-zinc-200 text-xs font-bold px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-md">
-              {viewerCount.toLocaleString()} مشاهد
+        {/* قسم البث المباشر الحي */}
+        <div className="flex-1 flex flex-col bg-black">
+          {/* شريط حالة البث */}
+          <div className="bg-zinc-900/90 px-4 py-2.5 border-b border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex size-2.5 rounded-full bg-[#53FC18] animate-pulse" />
+              <span className="text-xs font-black text-white">KICK LIVE STREAM</span>
             </div>
-          </div>
-
-          {/* زر تشغيل كبير في الوسط */}
-          <div className="relative z-10 flex items-center justify-center my-auto">
             <a
-              href={`https://kick.com/${username}`}
+              href={`https://kick.com/${channel}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-20 h-20 rounded-full bg-[#53FC18] text-black flex items-center justify-center pl-1 shadow-[0_0_30px_#53FC18] group-hover:scale-110 transition-transform duration-300"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#53FC18] hover:underline"
             >
-              <Play className="w-10 h-10 fill-black" />
+              <span>فتح على Kick</span>
+              <ExternalLink className="size-3.5" />
             </a>
           </div>
 
-          {/* الشريط السفلي: الشعار واسم القناة */}
-          <div className="relative z-10 bg-zinc-900/95 border-t border-zinc-800 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-zinc-400 text-xs font-semibold">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#53FC18]" />
-              <span>KICK STREAM</span>
-            </div>
+          {/* مشغل البث الفعلي */}
+          <div className="relative aspect-video w-full bg-black">
+            <iframe
+              src={`https://player.kick.com/${channel}`}
+              title="SNNSEI Kick Live Stream"
+              className="absolute inset-0 h-full w-full border-0"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+            />
+          </div>
 
-            <div className="flex items-center gap-3 bg-black/60 px-5 py-2 rounded-2xl border border-zinc-800">
-              <div className="w-9 h-9 rounded-xl bg-[#53FC18] text-black flex items-center justify-center font-black text-lg shadow-[0_0_15px_#53FC18]">
+          {/* شريط اسم القناة والتعريف */}
+          <div className="p-3 bg-zinc-900/70 border-t border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-9 rounded-xl bg-[#53FC18] text-black font-black flex items-center justify-center text-base shadow-[0_0_12px_rgba(83,252,24,0.4)]">
                 K
               </div>
-              <div className="text-right">
-                <h3 className="text-sm font-black text-white tracking-wide">{channelName}</h3>
-                <p className="text-[10px] font-bold text-[#53FC18]">@{username}</p>
+              <div>
+                <h3 className="text-sm font-black text-white">{channelName}</h3>
+                <p className="text-[11px] text-[#53FC18]">@{channel}</p>
               </div>
             </div>
-
-            <a
-              href={`https://kick.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-400 hover:text-[#53FC18] transition-colors p-2"
-            >
-              <ExternalLink className="w-5 h-5" />
-            </a>
+            <div className="flex items-center gap-1.5 rounded-lg bg-red-600/20 border border-red-500/30 px-2.5 py-1 text-[11px] font-black text-red-400">
+              <Radio className="size-3 animate-pulse" />
+              <span>LIVE</span>
+            </div>
           </div>
         </div>
 
-        {/* القسم الجانبي: الشات / المقاطع / التسجيلات */}
-        <div className="w-full lg:w-80 bg-zinc-900/90 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
+        {/* قسم التبويبات الجانبية (الشات / VODs / Clips) */}
+        <div className="w-full lg:w-84 xl:w-96 bg-zinc-900/95 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
+          
           {/* أزرار التبديل */}
-          <div className="flex bg-black/50 p-2 border-b border-zinc-800 gap-1">
+          <div className="grid grid-cols-3 p-2 bg-black/60 border-b border-zinc-800 gap-1.5">
             <button
+              type="button"
               onClick={() => setActiveTab("CHAT")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                activeTab === "CHAT" ? "bg-[#53FC18] text-black shadow-md" : "text-zinc-400 hover:text-white"
+              className={`py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all ${
+                activeTab === "CHAT"
+                  ? "bg-[#53FC18] text-black shadow-lg shadow-[#53FC18]/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="size-3.5" />
               <span>الشات</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("CLIPS")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                activeTab === "CLIPS" ? "bg-[#53FC18] text-black shadow-md" : "text-zinc-400 hover:text-white"
+              type="button"
+              onClick={() => setActiveTab("VODS")}
+              className={`py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all ${
+                activeTab === "VODS"
+                  ? "bg-[#53FC18] text-black shadow-lg shadow-[#53FC18]/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
-              <Scissors className="w-3.5 h-3.5" />
-              <span>CLIPS</span>
+              <Video className="size-3.5" />
+              <span>البثوث (VODs)</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("VODS")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                activeTab === "VODS" ? "bg-[#53FC18] text-black shadow-md" : "text-zinc-400 hover:text-white"
+              type="button"
+              onClick={() => setActiveTab("CLIPS")}
+              className={`py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all ${
+                activeTab === "CLIPS"
+                  ? "bg-[#53FC18] text-black shadow-lg shadow-[#53FC18]/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
-              <Video className="w-3.5 h-3.5" />
-              <span>تسجيلات</span>
+              <Scissors className="size-3.5" />
+              <span>المقاطع</span>
             </button>
           </div>
 
-          {/* محتوى الشات */}
+          {/* محتوى الشات المباشر الفعلي من Kick */}
           {activeTab === "CHAT" && (
-            <div className="flex-1 p-4 flex flex-col justify-between overflow-hidden">
-              <div className="space-y-3 overflow-y-auto pr-1 text-xs">
-                <div className="bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-700/50">
-                  <span className="font-bold text-[#53FC18] block mb-0.5">Gamer_Pro:</span>
-                  <span className="text-zinc-200">أداء اسطوري اليوم! 🔥</span>
-                </div>
-                <div className="bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-700/50">
-                  <span className="font-bold text-cyan-400 block mb-0.5">SNNSEI_Fan:</span>
-                  <span className="text-zinc-200">متى الروم القادم؟</span>
-                </div>
-                <div className="bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-700/50">
-                  <span className="font-bold text-amber-400 block mb-0.5">VIP_Player:</span>
-                  <span className="text-zinc-200">GG WP!! 👏</span>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-zinc-800 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="اكتب في الشات..."
-                  className="flex-1 bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#53FC18]"
-                />
-                <button className="bg-[#53FC18] text-black text-xs font-bold px-3 rounded-xl hover:bg-[#45d813] transition-colors">
-                  إرسال
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* محتوى المقاطع القصيرة (Clips) */}
-          {activeTab === "CLIPS" && (
-            <div className="flex-1 p-3 overflow-y-auto space-y-3">
-              {mockClips.map((clip) => (
+            <div className="flex-1 relative bg-black flex flex-col overflow-hidden">
+              <iframe
+                src={`https://kick.com/popout/${channel}/chat`}
+                title="SNNSEI Kick Chat"
+                className="w-full flex-1 border-0"
+              />
+              <div className="p-2 bg-zinc-950 border-t border-zinc-800 text-center">
                 <a
-                  key={clip.id}
-                  href={`https://kick.com/${username}`}
+                  href={`https://kick.com/${channel}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex gap-3 bg-black/40 p-2 rounded-xl border border-zinc-800 hover:border-[#53FC18]/50 transition-all"
+                  className="text-[11px] text-zinc-400 hover:text-[#53FC18] transition"
                 >
-                  <div className="relative w-24 h-16 rounded-lg overflow-hidden shrink-0">
-                    <img src={clip.thumbnail} alt={clip.title} className="w-full h-full object-cover" />
-                    <span className="absolute bottom-1 right-1 bg-black/80 text-[10px] font-bold text-zinc-200 px-1 rounded">
-                      {clip.duration}
-                    </span>
-                  </div>
-                  <div className="flex flex-col justify-between py-0.5">
-                    <h4 className="text-xs font-bold text-white line-clamp-2 group-hover:text-[#53FC18] transition-colors">
-                      {clip.title}
-                    </h4>
-                    <span className="text-[10px] text-zinc-400">{clip.views.toLocaleString()} مشاهدة</span>
-                  </div>
+                  إذا لم يظهر الشات في المتصفح، اضغط هنا لفتحه مباشرة على Kick ↗
                 </a>
-              ))}
+              </div>
             </div>
           )}
 
-          {/* محتوى التسجيلات السابقة (VODs) */}
+          {/* محتوى التسجيلات السابقة VODs */}
           {activeTab === "VODS" && (
-            <div className="flex-1 p-3 overflow-y-auto space-y-3">
+            <div className="flex-1 p-3 overflow-y-auto space-y-2.5">
+              <div className="mb-2 text-xs font-bold text-zinc-400 flex items-center justify-between">
+                <span>آخر البثوث المسجلة</span>
+                <a
+                  href={`https://kick.com/${channel}/videos`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#53FC18] text-[11px] hover:underline"
+                >
+                  عرض الكل
+                </a>
+              </div>
               {mockVODs.map((vod) => (
                 <a
                   key={vod.id}
-                  href={`https://kick.com/${username}`}
+                  href={vod.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex gap-3 bg-black/40 p-2 rounded-xl border border-zinc-800 hover:border-[#53FC18]/50 transition-all"
+                  className="group flex gap-2.5 bg-zinc-950/70 p-2 rounded-xl border border-zinc-800 hover:border-[#53FC18]/60 transition-all text-right"
                 >
-                  <div className="relative w-24 h-16 rounded-lg overflow-hidden shrink-0">
-                    <img src={vod.thumbnail} alt={vod.title} className="w-full h-full object-cover" />
-                    <span className="absolute bottom-1 right-1 bg-black/80 text-[10px] font-bold text-zinc-200 px-1 rounded">
+                  <div className="relative w-28 h-16 rounded-lg overflow-hidden shrink-0 bg-zinc-900">
+                    <img src={vod.thumbnail} alt={vod.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                    <span className="absolute bottom-1 right-1 bg-black/85 text-[10px] font-bold text-zinc-200 px-1.5 py-0.5 rounded">
                       {vod.duration}
                     </span>
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+                      <Play className="size-5 fill-white text-white" />
+                    </span>
                   </div>
-                  <div className="flex flex-col justify-between py-0.5">
-                    <h4 className="text-xs font-bold text-white line-clamp-2 group-hover:text-[#53FC18] transition-colors">
+                  <div className="flex flex-col justify-between py-0.5 flex-1 min-w-0">
+                    <h4 className="text-xs font-bold text-white line-clamp-2 group-hover:text-[#53FC18] transition">
                       {vod.title}
                     </h4>
                     <span className="text-[10px] text-zinc-400">{vod.date}</span>
@@ -253,8 +239,54 @@ export function KickPlayerCard() {
               ))}
             </div>
           )}
+
+          {/* محتوى المقاطع القصيرة Clips */}
+          {activeTab === "CLIPS" && (
+            <div className="flex-1 p-3 overflow-y-auto space-y-2.5">
+              <div className="mb-2 text-xs font-bold text-zinc-400 flex items-center justify-between">
+                <span>أبرز اللقطات والمقاطع</span>
+                <a
+                  href={`https://kick.com/${channel}/clips`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#53FC18] text-[11px] hover:underline"
+                >
+                  عرض الكل
+                </a>
+              </div>
+              {mockClips.map((clip) => (
+                <a
+                  key={clip.id}
+                  href={clip.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex gap-2.5 bg-zinc-950/70 p-2 rounded-xl border border-zinc-800 hover:border-[#53FC18]/60 transition-all text-right"
+                >
+                  <div className="relative w-28 h-16 rounded-lg overflow-hidden shrink-0 bg-zinc-900">
+                    <img src={clip.thumbnail} alt={clip.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                    <span className="absolute bottom-1 right-1 bg-black/85 text-[10px] font-bold text-zinc-200 px-1.5 py-0.5 rounded">
+                      {clip.duration}
+                    </span>
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+                      <Play className="size-5 fill-white text-white" />
+                    </span>
+                  </div>
+                  <div className="flex flex-col justify-between py-0.5 flex-1 min-w-0">
+                    <h4 className="text-xs font-bold text-white line-clamp-2 group-hover:text-[#53FC18] transition">
+                      {clip.title}
+                    </h4>
+                    <span className="text-[10px] text-[#53FC18] font-bold">
+                      {clip.views.toLocaleString()} مشاهدة
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+
         </div>
       </div>
     </div>
   );
-}
+          }
+            

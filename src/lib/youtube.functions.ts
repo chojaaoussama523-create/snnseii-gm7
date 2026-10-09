@@ -9,7 +9,7 @@ const API = "https://www.googleapis.com/youtube/v3";
 const HANDLE = "snnsei";
 
 async function yt<T>(path: string, params: Record<string, string>): Promise<T> {
-  const key = process.env.YOUTUBE_API_KEY;
+  const key = process.env["YOUTUBE_API_KEY"];
   if (!key) throw new Error("YouTube غير مهيأ");
   const qs = new URLSearchParams({ ...params, key });
   const res = await fetch(`${API}/${path}?${qs}`);

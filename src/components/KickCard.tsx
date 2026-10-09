@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, MessageSquare, Video, Scissors, Radio, ExternalLink, User } from "lucide-react";
+import { Play, MessageSquare, Video, Scissors, Radio, ExternalLink } from "lucide-react";
 
 interface Clip {
   id: string;
@@ -27,13 +27,37 @@ export function KickPlayerCard() {
   const viewerCount = 1420;
 
   const mockClips: Clip[] = [
-    { id: "1", title: "لقطة قضاء على التيم بالكامل 🔥", views: 12500, duration: "0:30", thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600" },
-    { id: "2", title: "ردة فعل مجنونة في آخر ثانية 😱", views: 8900, duration: "0:45", thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600" },
+    {
+      id: "1",
+      title: "لقطة قضاء على التيم بالكامل 🔥",
+      views: 12500,
+      duration: "0:30",
+      thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600",
+    },
+    {
+      id: "2",
+      title: "ردة فعل مجنونة في آخر ثانية 😱",
+      views: 8900,
+      duration: "0:45",
+      thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600",
+    },
   ];
 
   const mockVODs: VOD[] = [
-    { id: "101", title: "بث كامل: بطولات نهاية الأسبوع | GM7", date: "أمس", duration: "4h 12m", thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600" },
-    { id: "102", title: "تختيم الأحداث الجديدة وتجربة التحديث", date: "قبل 3 أيام", duration: "3h 45m", thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600" },
+    {
+      id: "101",
+      title: "بث كامل: بطولات نهاية الأسبوع | GM7",
+      date: "أمس",
+      duration: "4h 12m",
+      thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600",
+    },
+    {
+      id: "102",
+      title: "تختيم الأحداث الجديدة وتجربة التحديث",
+      date: "قبل 3 أيام",
+      duration: "3h 45m",
+      thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600",
+    },
   ];
 
   return (
@@ -43,7 +67,6 @@ export function KickPlayerCard() {
         
         {/* قسم الشاشة الرئيسية للبث (Left Main Player) */}
         <div className="relative flex-1 aspect-video bg-black flex flex-col justify-between group">
-          {/* خلفية البث المباشر / الإطار */}
           <img
             src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200"
             alt="Kick Live Stream"
@@ -51,7 +74,7 @@ export function KickPlayerCard() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
 
-          {/* الجزء العلمي للشاشة: شارات البث والمشاهدين */}
+          {/* الجزء العلوي: شارات البث والمشاهدين */}
           <div className="relative z-10 p-4 flex justify-between items-center">
             {isLive ? (
               <div className="bg-red-600/90 text-white text-xs font-black px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur-md animate-pulse">
@@ -59,7 +82,9 @@ export function KickPlayerCard() {
                 <span>مباشر الآن</span>
               </div>
             ) : (
-              <div className="bg-zinc-800/80 text-zinc-400 text-xs font-bold px-3 py-1.5 rounded-lg">غير مباشر</div>
+              <div className="bg-zinc-800/80 text-zinc-400 text-xs font-bold px-3 py-1.5 rounded-lg">
+                غير مباشر
+              </div>
             )}
 
             <div className="bg-black/70 text-zinc-200 text-xs font-bold px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-md">
@@ -67,7 +92,7 @@ export function KickPlayerCard() {
             </div>
           </div>
 
-          {/* وسط الشاشة: زر تشغيل كبير */}
+          {/* زر تشغيل كبير في الوسط */}
           <div className="relative z-10 flex items-center justify-center my-auto">
             <a
               href={`https://kick.com/${username}`}
@@ -79,17 +104,15 @@ export function KickPlayerCard() {
             </a>
           </div>
 
-          {/* الشريط السفلي للإطار: يحتوي اللوغو واسم القناة في المنتصف */}
+          {/* الشريط السفلي: الشعار واسم القناة */}
           <div className="relative z-10 bg-zinc-900/95 border-t border-zinc-800 p-4 flex items-center justify-between">
             <div className="flex items-center gap-2 text-zinc-400 text-xs font-semibold">
               <span className="w-2.5 h-2.5 rounded-full bg-[#53FC18]" />
               <span>KICK STREAM</span>
             </div>
 
-            {/* المنتصف: الشعار والاسم */}
             <div className="flex items-center gap-3 bg-black/60 px-5 py-2 rounded-2xl border border-zinc-800">
               <div className="w-9 h-9 rounded-xl bg-[#53FC18] text-black flex items-center justify-center font-black text-lg shadow-[0_0_15px_#53FC18]">
-                {/* يمكنك استبدال هذا الحرف برابط صورة اللوغو <img src="..." /> */}
                 K
               </div>
               <div className="text-right">
@@ -109,9 +132,9 @@ export function KickPlayerCard() {
           </div>
         </div>
 
-        {/* القسم الجانبي: الشات / المقاطع / التسجيلات (Right Sidebar Panel) */}
+        {/* القسم الجانبي: الشات / المقاطع / التسجيلات */}
         <div className="w-full lg:w-80 bg-zinc-900/90 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
-          {/* أزرار التبديل القابلة للتنقل */}
+          {/* أزرار التبديل */}
           <div className="flex bg-black/50 p-2 border-b border-zinc-800 gap-1">
             <button
               onClick={() => setActiveTab("CHAT")}
@@ -144,7 +167,7 @@ export function KickPlayerCard() {
             </button>
           </div>
 
-          {/* محتوى الشات المباشر */}
+          {/* محتوى الشات */}
           {activeTab === "CHAT" && (
             <div className="flex-1 p-4 flex flex-col justify-between overflow-hidden">
               <div className="space-y-3 overflow-y-auto pr-1 text-xs">
@@ -162,7 +185,6 @@ export function KickPlayerCard() {
                 </div>
               </div>
 
-              {/* صندوق محاكاة إرسال الرسالة */}
               <div className="mt-3 pt-3 border-t border-zinc-800 flex gap-2">
                 <input
                   type="text"

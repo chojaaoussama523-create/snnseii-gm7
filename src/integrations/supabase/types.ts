@@ -173,11 +173,9 @@ export type Database = {
           city: string
           code: string
           created_at: string
-          device_id: string
           discord: string
           game_id: string
           id: string
-          ip: string
           mode: number
           platform: string
           platform_id: string
@@ -193,11 +191,9 @@ export type Database = {
           city: string
           code: string
           created_at?: string
-          device_id?: string
           discord?: string
           game_id: string
           id?: string
-          ip?: string
           mode: number
           platform: string
           platform_id: string
@@ -213,11 +209,9 @@ export type Database = {
           city?: string
           code?: string
           created_at?: string
-          device_id?: string
           discord?: string
           game_id?: string
           id?: string
-          ip?: string
           mode?: number
           platform?: string
           platform_id?: string

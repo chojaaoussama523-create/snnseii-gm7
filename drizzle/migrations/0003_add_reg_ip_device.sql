@@ -1,0 +1,1 @@
+ALTER TABLE public.tournament_registrations ADD COLUMN IF NOT EXISTS ip text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS device_id text NOT NULL DEFAULT '';

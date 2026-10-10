@@ -200,7 +200,7 @@ export function KickPlayerCard() {
           {/* محتوى الشات المباشر الفعلي من Kick */}
           {activeTab === "CHAT" && (
             <div className="flex-1 relative bg-black flex flex-col items-center justify-center gap-4 overflow-hidden p-6 text-center">
-              <MessageCircle className="size-10 text-[#53FC18]" />
+              <MessageSquare className="size-10 text-[#53FC18]" />
               <p className="text-sm font-bold text-white">شات البث المباشر</p>
               <p className="max-w-xs text-xs leading-relaxed text-zinc-400">
                 Kick لا يسمح بتضمين الشات داخل المواقع الخارجية. افتح الشات مباشرة على Kick وتفاعل مع البث.

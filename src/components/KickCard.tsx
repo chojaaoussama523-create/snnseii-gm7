@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageSquare, Video, Scissors, Radio, ExternalLink, Play } from "lucide-react";
+import kickStreamBg from "@/assets/kick-stream-bg.jpg.asset.json";
 
 interface Clip {
   id: string;
@@ -91,10 +92,13 @@ export function KickPlayerCard() {
   return (
     <div className="w-full max-w-7xl mx-auto space-y-4">
       {/* إطار البث والشات المتجاوب */}
-      <div className="rounded-2xl lg:rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl flex flex-col lg:flex-row">
+      <div
+        className="rounded-2xl lg:rounded-3xl overflow-hidden bg-zinc-950 bg-cover bg-center border border-zinc-800 shadow-2xl flex flex-col lg:flex-row"
+        style={{ backgroundImage: `url(${kickStreamBg.url})` }}
+      >
         
         {/* قسم البث المباشر الحي */}
-        <div className="flex-1 flex flex-col bg-black">
+        <div className="flex-1 flex flex-col bg-black/80">
           {/* شريط حالة البث */}
           <div className="bg-zinc-900/90 px-4 py-2.5 border-b border-zinc-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -153,7 +157,7 @@ export function KickPlayerCard() {
         </div>
 
         {/* قسم التبويبات الجانبية (الشات / VODs / Clips) */}
-        <div className="w-full lg:w-84 xl:w-96 bg-zinc-900/95 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
+        <div className="w-full lg:w-84 xl:w-96 bg-zinc-900/85 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
           
           {/* أزرار التبديل */}
           <div className="grid grid-cols-3 p-2 bg-black/60 border-b border-zinc-800 gap-1.5">

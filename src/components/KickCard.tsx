@@ -157,7 +157,7 @@ export function KickPlayerCard() {
         </div>
 
         {/* قسم التبويبات الجانبية (الشات / VODs / Clips) */}
-        <div className="w-full lg:w-84 xl:w-96 bg-zinc-900/95 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
+        <div className="w-full lg:w-84 xl:w-96 bg-zinc-900/85 border-t lg:border-t-0 lg:border-r border-zinc-800 flex flex-col h-[480px] lg:h-auto">
           
           {/* أزرار التبديل */}
           <div className="grid grid-cols-3 p-2 bg-black/60 border-b border-zinc-800 gap-1.5">
